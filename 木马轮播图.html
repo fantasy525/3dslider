@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3D旋转木马</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        #wrap{width:500px;height:333px;margin:0 auto;position:relative;margin-top:100px}
+        #wrap img{position:absolute;  border-radius: 20px;
+            box-shadow: 0px 0px 10px #6F8363}
+        #Prev {
+            width: 76px;
+            height: 112px;
+            left: 0;
+            bottom:0;
+            background:url("http://cdn.attach.qdfuns.com/notes/pics/201612/12/174643g1z3q8g1nqqre0rr.png")no-repeat left  center;
+            position: absolute;
+            z-index: 100;
+            cursor:pointer;
+        }
+
+        #Next {
+            width: 76px;
+            height: 112px;
+            bottom:0;
+            right: 0;
+            background:url("http://cdn.attach.qdfuns.com/notes/pics/201612/12/174332yh3uxrar5r2oy9zu.png")no-repeat right  center;
+            position: absolute;
+            z-index: 100;
+            cursor:pointer;
+
+        }
+        .pos_1{
+            width:280px;
+            left:-180px;
+            top:68px;
+            z-index: 0;
+            opacity:0;
+            filter:alpha(opacity:1);
+        }
+        .pos_2{
+            width:280px;
+            left:-180px;
+            top:68px;
+            z-index: 1;
+            opacity:0.4;
+            filter:alpha(opacity:40);
+        }
+        .pos_3 {
+            width:380px;
+            left:-105px;
+            top:35px;
+            z-index:2;
+            opacity:0.8;
+            filter:alpha(opacity:80);
+        }
+        .pos_4{
+            width:500px;
+            left:0px;
+            top:0px;
+            z-index: 3;
+            opacity:1;
+            filter:alpha(opacity:1);
+        }
+        .pos_5{
+            width:380px;
+            left:225px;
+            top:35px;
+            z-index:2;
+            opacity:0.8;
+            filter:alpha(opacity:80);
+        }
+        .pos_6{
+            width:280px;
+            left:400px;
+            top:68px;
+            z-index: 1;
+            opacity:0.4;
+            filter:alpha(opacity:40);
+        }
+        .pos_7{
+            width:280px;
+            left:400px;
+            top:68px;
+            z-index: 0;
+            opacity:0;
+            filter:alpha(opacity:0);
+        }
+
+
+    </style>
+</head>
+<body>
+<div id="wrap">
+    <img src="http://cdn.attach.qdfuns.com/notes/pics/201612/12/174332v5ccpvcadbzc4sc4.jpg" alt="" class="pos_1" name="img1">
+    <img src="http://cdn.attach.qdfuns.com/notes/pics/201612/12/174330oflap06v8fjjjmgj.jpg" alt="" class="pos_2" name="img1">
+    <img src="http://cdn.attach.qdfuns.com/notes/pics/201612/12/174330oflap06v8fjjjmgj.jpg" alt="" class="pos_3" name="img1">
+    <img src="http://cdn.attach.qdfuns.com/notes/pics/201612/12/174330ufgsemum0vjt0sec.jpg" alt="" class="pos_4" name="img1">
+    <img src="http://cdn.attach.qdfuns.com/notes/pics/201612/12/174330rupaucmcpz2bjap1.jpg" alt="" class="pos_5" name="img1">
+    <img src="http://cdn.attach.qdfuns.com/notes/pics/201612/12/174330yvc9ocif949zv8zh.jpg" alt="" class="pos_6" name="img1">
+    <img src="http://cdn.attach.qdfuns.com/notes/pics/201612/12/174330tatbdhg47dq1hz0h.jpg" alt="" class="pos_7" name="img1">
+    <div id="Prev"></div>
+    <div id="Next"></div>
+</div>
+<script>
+    window.onload=function(){
+        var oLeft=document.getElementById('left');
+        var oRight=document.getElementById('right');
+        var oNext=document.getElementById('Next');
+        var oPrev=document.getElementById('Prev');
+        var oImg=document.getElementsByName('img1');
+        var arr=[];
+        var timer=null;
+        jQuery.extend(jQuery.easing,{
+            easeOutBounce: function (x, t, b, c, d) {
+                if ((t/=d) < (1/2.75)) {
+                    return c*(7.5625*t*t) + b;
+                } else if (t < (2/2.75)) {
+                    return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+                } else if (t < (2.5/2.75)) {
+                    return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+                } else {
+                    return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+                }
+            },
+        });
+        for(var i=0;i<oImg.length;i++){
+            //保存每个图片的left,width，opacity,zIndex到二维数组中
+            oImg[i].index=i;
+            arr.push([parseInt(getStyle(oImg[i],"left")),parseInt(getStyle(oImg[i],"top")),parseInt(getStyle(oImg[i],"width")),parseFloat(getStyle(oImg[i],"opacity"))*100,parseInt(getStyle(oImg[i],"zIndex"))]);
+        }
+        oNext.onclick=function(){
+            tab(4);
+        };
+        oPrev.onclick=function(){
+            tab(2);
+        };
+        function changeIndex(index) {
+            if(index<0){
+                for(var i=0;i>index;i--){
+                    arr.push(arr[0]);
+                    arr.shift();
+                }
+            }
+            else{
+                for(var i=0;i<index;i++){
+                    arr.unshift(arr[arr.length-1]);
+                    arr.pop();
+                }
+            }
+            return arr;
+        }
+        $('#wrap img').click(function(){
+            arr= changeIndex(this.index-3);
+            for(var i=0;i<oImg.length;i++){
+                startMove(oImg[i],{'left':arr[i][0],'top':arr[i][1],'width':arr[i][2],'opacity':arr[i][3],'zIndex':arr[i][4]});
+            }
+            setIndex(this.index);
+        })
+        function setIndex(index){
+            var curIndex=index;
+            for(var m=0;m<oImg.length;m++){
+                if(oImg[m].index- (curIndex-3)<=0){
+                    oImg[m].index=oImg[m].index- (curIndex-3)+7;
+                }
+                else{
+                    oImg[m].index=oImg[m].index- (curIndex-3);
+                }
+            }
+        }
+        function tab(num){
+            clearInterval(timer);
+            if(num==2){
+                arr.push(arr[0]);
+                arr.shift();
+            }
+            else if(num==4){
+                arr.unshift(arr[arr.length-1]);
+                arr.pop();
+            }
+            for(var i=0;i<oImg.length;i++){
+                startMove(oImg[i],{'left':arr[i][0],'top':arr[i][1],'width':arr[i][2],'opacity':arr[i][3],'zIndex':arr[i][4]});
+            }
+            setIndex(num);
+        }
+        function startMove(obj,json,fn){
+            obj=$(obj);
+            obj.css({zIndex:json.zIndex});
+            obj.stop(true).animate({
+                opacity:json.opacity/100,
+                top:json.top+'px',
+                width:json.width+'px',
+                left:[json.left+'px','swing']
+            },300);
+        }
+        /*
+         * 通用获取dom对象的非行间属性*/
+        function getStyle(obj,attr){
+            if(obj.currentStyle){//兼容IEcurrentStyle和getComputedStyle两个返回的都是一个对象
+                return obj.currentStyle[attr];
+            }
+            else {
+                return getComputedStyle(obj,false)[attr];
+            }
+        }
+
+    }</script>
+</body>
+</html>
